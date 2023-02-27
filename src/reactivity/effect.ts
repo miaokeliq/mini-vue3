@@ -1,6 +1,8 @@
 class ReactiveEffect {
   private _fn: any;
-
+  deps = [];
+  active = true;
+  onStop?: () => void;
   // scheduler? 的问号表示 这个参数是可选的 public 这样就能让外界访问到
   constructor(fn: any, public scheduler?) {
     this._fn = fn;
@@ -10,6 +12,23 @@ class ReactiveEffect {
     activeEffect = this;
     return this._fn();
   }
+
+  stop() {
+    // active 参数能够避免性能问题，如果active = false，就不用再删除了，这样以后就不会多次删除
+    if (this.active) {
+      cleanupEffect(this);
+      if (this.onStop) {
+        this.onStop();
+      }
+      this.active = false;
+    }
+  }
+}
+
+function cleanupEffect(effect) {
+  effect.deps.forEach((dep: any) => {
+    dep.delete(effect);
+  });
 }
 
 // 依赖收集
@@ -40,6 +59,9 @@ export function track(target, key) {
 
   // 将 fn,也就是正在触发的依赖 放入指定key的依赖的容器
   dep.add(activeEffect);
+
+  // 反向存储，以便读取
+  activeEffect.deps.push(dep);
 }
 
 // 基于 target 和 key 取出 dep 对象， 然后调用所有之前收集到的 fn,也就是依赖
@@ -61,8 +83,14 @@ let activeEffect: any;
 export function effect(fn: any, options: any = {}) {
   // fn
   const _effect = new ReactiveEffect(fn, options.scheduler);
-
+  _effect.onStop = options.onStop;
   _effect.run();
 
-  return _effect.run.bind(_effect);
+  const runner: any = _effect.run.bind(_effect);
+  runner.effect = _effect;
+  return runner;
+}
+
+export function stop(runner) {
+  runner.effect.stop();
 }
