@@ -1,3 +1,4 @@
+import { extend } from "../shared";
 class ReactiveEffect {
   private _fn: any;
   deps = [];
@@ -83,7 +84,10 @@ let activeEffect: any;
 export function effect(fn: any, options: any = {}) {
   // fn
   const _effect = new ReactiveEffect(fn, options.scheduler);
-  _effect.onStop = options.onStop;
+
+  // options
+  // extend
+  extend(_effect, options);
   _effect.run();
 
   const runner: any = _effect.run.bind(_effect);
