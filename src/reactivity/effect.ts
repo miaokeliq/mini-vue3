@@ -1,7 +1,8 @@
 class ReactiveEffect {
   private _fn: any;
 
-  constructor(fn: any) {
+  // scheduler? 的问号表示 这个参数是可选的 public 这样就能让外界访问到
+  constructor(fn: any, public scheduler?) {
     this._fn = fn;
   }
   run() {
@@ -48,14 +49,18 @@ export function trigger(target: any, key: any) {
 
   // 调用所有的依赖
   for (let effect of dep) {
-    effect.run();
+    if (effect.scheduler) {
+      effect.scheduler();
+    } else {
+      effect.run();
+    }
   }
 }
 
 let activeEffect: any;
-export function effect(fn: any) {
+export function effect(fn: any, options: any = {}) {
   // fn
-  const _effect = new ReactiveEffect(fn);
+  const _effect = new ReactiveEffect(fn, options.scheduler);
 
   _effect.run();
 
