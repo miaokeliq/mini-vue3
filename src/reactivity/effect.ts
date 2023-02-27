@@ -61,6 +61,8 @@ export function track(target, key) {
   // 将 fn,也就是正在触发的依赖 放入指定key的依赖的容器
   dep.add(activeEffect);
 
+  // 如果没有effect，就不用执行下面的操作，就修复了 reactive 的 happy path 单测
+  if (!activeEffect) return;
   // 反向存储，以便读取
   activeEffect.deps.push(dep);
 }
