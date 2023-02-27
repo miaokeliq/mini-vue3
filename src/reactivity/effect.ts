@@ -7,7 +7,7 @@ class ReactiveEffect {
   run() {
     // 证明当前的 effect 是正在执行的状态
     activeEffect = this;
-    this._fn();
+    return this._fn();
   }
 }
 
@@ -58,4 +58,6 @@ export function effect(fn: any) {
   const _effect = new ReactiveEffect(fn);
 
   _effect.run();
+
+  return _effect.run.bind(_effect);
 }
