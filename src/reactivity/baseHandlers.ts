@@ -1,5 +1,5 @@
 import { track, trigger } from "./effect";
-
+import { ReactiveFlags } from "./reactive";
 // 初始化的时候就创建 get，set 这样不用每次创建多个 get，set了，优化j
 const get = createGetter();
 const set = createSetter();
@@ -7,7 +7,7 @@ const readonlyGet = createGetter(true);
 
 function createGetter(isReadonly = false) {
   return function get(target, key) {
-    if (key === "is_reactive") {
+    if (key === ReactiveFlags.IS_REACTIVE) {
       return !isReadonly;
     }
 
