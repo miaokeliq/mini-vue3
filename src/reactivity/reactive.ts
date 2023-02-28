@@ -14,7 +14,7 @@ export function readonly(raw: any) {
 
 // 初步实现
 export function isReactive(value) {
-  return value[ReactiveFlags.IS_REACTIVE];
+  return !!value[ReactiveFlags.IS_REACTIVE];
 }
 
 function createActiveObject(raw: any, baseHandlers) {
