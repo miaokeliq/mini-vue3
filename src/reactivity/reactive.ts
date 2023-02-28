@@ -1,46 +1,13 @@
-import { track, trigger } from "./effect";
+import { mutableHandlers, readonlyHandlers } from "./baseHandlers";
+
 export function reactive(raw: any) {
-  return new Proxy(raw, {
-    /*
-     * target: 指向当前获取的对象
-     * ket: 指向用户访问的key
-     * */
-    get(target, key) {
-      // { foo : 1}
-      //
-      const res = Reflect.get(target, key);
-
-      // 依赖收集
-      track(target, key);
-      return res;
-    },
-
-    set(target, key, value) {
-      const res = Reflect.set(target, key, value);
-
-      // 触发依赖
-      trigger(target, key);
-      return res;
-    },
-  });
+  return createActiveObject(raw, mutableHandlers);
 }
 
-export function readonly(raw) {
-  return new Proxy(raw, {
-    /*
-     * target: 指向当前获取的对象
-     * ket: 指向用户访问的key
-     * */
-    get(target, key) {
-      // { foo : 1}
-      //
-      const res = Reflect.get(target, key);
+export function readonly(raw: any) {
+  return createActiveObject(raw, readonlyHandlers);
+}
 
-      return res;
-    },
-
-    set(target, key, value) {
-      return true;
-    },
-  });
+function createActiveObject(raw: any, baseHandlers) {
+  return new Proxy(raw, baseHandlers);
 }
