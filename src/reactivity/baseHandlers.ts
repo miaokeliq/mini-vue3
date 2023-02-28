@@ -1,5 +1,7 @@
 import { track, trigger } from "./effect";
-import { ReactiveFlags } from "./reactive";
+import { ReactiveFlags, reactive, readonly } from "./reactive";
+import { isObject } from "../shared";
+
 // 初始化的时候就创建 get，set 这样不用每次创建多个 get，set了，优化j
 const get = createGetter();
 const set = createSetter();
@@ -14,6 +16,11 @@ function createGetter(isReadonly = false) {
     }
 
     const res = Reflect.get(target, key);
+
+    // 看看 res 是不是 object
+    if (isObject(res)) {
+      return isReadonly ? readonly(res) : reactive(res);
+    }
 
     // 因为readonly不会被set，也就不会触发依赖，所以也就不用再去收集依赖了,从而提高性能
     if (!isReadonly) {
