@@ -15,6 +15,7 @@ function createGetter(isReadonly = false) {
 
     const res = Reflect.get(target, key);
 
+    // 因为readonly不会被set，也就不会触发依赖，所以也就不用再去收集依赖了
     if (!isReadonly) {
       track(target, key);
     }
