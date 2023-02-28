@@ -1,4 +1,5 @@
 import { readonly } from "../reactive";
+
 describe("readonly", () => {
   it("happy path", () => {
     //not set
@@ -6,5 +7,19 @@ describe("readonly", () => {
     const wrapped = readonly(original);
     expect(wrapped).not.toBe(original);
     expect(wrapped.foo).toBe(1);
+  });
+
+  // 修改 readonly 的属性时会弹出警告
+  it("warn then call set", () => {
+    // console.warn()
+    // mock 通过这个构造一个假的警告方法
+    console.warn = jest.fn();
+    const user = readonly({
+      age: 10,
+    });
+
+    user.age = 11;
+
+    expect(console.warn).toBeCalled();
   });
 });
