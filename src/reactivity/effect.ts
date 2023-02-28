@@ -1,17 +1,35 @@
 import { extend } from "../shared";
+
+let activeEffect: any;
+let shouldTrack;
+
 class ReactiveEffect {
   private _fn: any;
   deps = [];
   active = true;
   onStop?: () => void;
+  public scheduler: Function | undefined;
   // scheduler? 的问号表示 这个参数是可选的 public 这样就能让外界访问到
-  constructor(fn: any, public scheduler?) {
+  constructor(fn: any, scheduler?: Function) {
     this._fn = fn;
+    this.scheduler = scheduler;
   }
   run() {
     // 证明当前的 effect 是正在执行的状态
+    // 1. 会收集依赖
+    //    shouldTrack 来做区分
+    if (!this.active) {
+      return this._fn();
+    }
+
+    shouldTrack = true;
     activeEffect = this;
-    return this._fn();
+
+    const result = this._fn();
+
+    // reset
+    shouldTrack = false;
+    return result;
   }
 
   stop() {
@@ -30,11 +48,14 @@ function cleanupEffect(effect) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect);
   });
+  effect.deps.length = 0;
 }
 
 // 依赖收集
 const targetMap = new Map();
 export function track(target, key) {
+  if (!isTracking()) return;
+
   // 收集依赖的容器
   // target -> key -> dep
 
@@ -59,12 +80,19 @@ export function track(target, key) {
   }
 
   // 将 fn,也就是正在触发的依赖 放入指定key的依赖的容器
+  if (dep.has(activeEffect)) return; // 避免重复收集
   dep.add(activeEffect);
 
-  // 如果没有effect，就不用执行下面的操作，就修复了 reactive 的 happy path 单测
-  if (!activeEffect) return;
   // 反向存储，以便读取
   activeEffect.deps.push(dep);
+}
+
+// 正在收集中的状态
+function isTracking() {
+  /* // 如果没有effect，就不用执行下面的操作，就修复了 reactive 的 happy path 单测
+  if (!activeEffect) return;
+  if (!shouldTrack) return; */
+  return shouldTrack && activeEffect !== undefined;
 }
 
 // 基于 target 和 key 取出 dep 对象， 然后调用所有之前收集到的 fn,也就是依赖
@@ -82,7 +110,6 @@ export function trigger(target: any, key: any) {
   }
 }
 
-let activeEffect: any;
 export function effect(fn: any, options: any = {}) {
   // fn
   const _effect = new ReactiveEffect(fn, options.scheduler);
