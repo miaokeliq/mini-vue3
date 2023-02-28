@@ -8,6 +8,7 @@ export function readonly(raw: any) {
   return createActiveObject(raw, readonlyHandlers);
 }
 
+// 初步实现
 export function isReactive(value) {
   return value["is_reactive"];
 }
