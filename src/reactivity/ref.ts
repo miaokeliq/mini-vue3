@@ -70,3 +70,23 @@ export function unRef(ref) {
   // 反之就直接 返回 refj
   return isRef(ref) ? ref.value : ref;
 }
+
+export function proxyRefs(objectWithRefs) {
+  // 怎么能知道调用 get set  那就用proxyj
+  return new Proxy(objectWithRefs, {
+    get(target, key) {
+      // 调用 get ，如果 age 是 ref ，那么就给他返回 .value
+      // 如果不是 ref , 就直接返回值
+      return unRef(Reflect.get(target, key));
+    },
+
+    set(target, key, value) {
+      // set -> 如果 ref 修改.value
+      if (isRef(target[key]) && !isRef(value)) {
+        return (target[key].value = value);
+      } else {
+        return Reflect.set(target, key, value);
+      }
+    },
+  });
+}

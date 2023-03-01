@@ -1,4 +1,4 @@
-import { ref, isRef, unRef } from "../ref";
+import { ref, isRef, unRef, proxyRefs } from "../ref";
 import { reactive } from "../reactive";
 import { effect } from "../effect";
 describe("ref", () => {
@@ -57,5 +57,32 @@ describe("ref", () => {
     const a = ref(1);
     expect(unRef(a)).toBe(1);
     expect(unRef(1)).toBe(1);
+  });
+
+  it("proxyRefs", () => {
+    const user = {
+      age: ref(10),
+      name: "xiaohong",
+    };
+    // proxyRefs 可以让 ref 后面不用再加上 ".value" 来读取值
+    // 调用 get ，如果 age 是 ref ，那么就给他返回 .value
+    // 如果不是 ref , 就直接返回值
+    const proxyUser = proxyRefs(user);
+    expect(user.age.value).toBe(10);
+    expect(proxyUser.age).toBe(10);
+    expect(proxyUser.name).toBe("xiaohong");
+
+    // set
+    proxyUser.age = 20;
+
+    // set -> 如果ref   修改.value
+    //
+    expect(proxyUser.age).toBe(20);
+    expect(user.age.value).toBe(20);
+
+    // 给 ref 的话那就是替换
+    proxyUser.age = ref(10);
+    expect(proxyUser.age).toBe(10);
+    expect(user.age.value).toBe(10);
   });
 });
