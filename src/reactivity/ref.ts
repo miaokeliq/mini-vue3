@@ -13,6 +13,7 @@ class RefImpl {
   public dep; // 保存依赖的  只有一个dep ，因为只有一个_value
 
   private _rawValue: any;
+  public __v_isRef = true;
   constructor(value) {
     this._rawValue = value;
     this._value = convert(value);
@@ -57,4 +58,15 @@ function trackRefValue(ref) {
 
 export function ref(value) {
   return new RefImpl(value);
+}
+
+export function isRef(ref) {
+  // !!两个 感叹号就转换为 boolean
+  return !!ref.__v_isRef;
+}
+
+export function unRef(ref) {
+  // 看看是不是 ref -> ref.value
+  // 反之就直接 返回 refj
+  return isRef(ref) ? ref.value : ref;
 }

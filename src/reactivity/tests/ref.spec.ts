@@ -1,4 +1,5 @@
-import { ref } from "../ref";
+import { ref, isRef, unRef } from "../ref";
+import { reactive } from "../reactive";
 import { effect } from "../effect";
 describe("ref", () => {
   // only 表示只会执行当前这个测试
@@ -39,5 +40,22 @@ describe("ref", () => {
     expect(dummy).toBe(1);
     a.value.count = 2;
     expect(dummy).toBe(2);
+  });
+
+  // isRef 判断响应式对象是不是一个 Ref 类型  unRef 返回 ref.value的值
+  it("isRef", () => {
+    const a = ref(1);
+    const user = reactive({
+      age: 1,
+    });
+    expect(isRef(a)).toBe(true);
+    expect(isRef(1)).toBe(false);
+    expect(isRef(user)).toBe(false);
+  });
+
+  it("unRef", () => {
+    const a = ref(1);
+    expect(unRef(a)).toBe(1);
+    expect(unRef(1)).toBe(1);
   });
 });
