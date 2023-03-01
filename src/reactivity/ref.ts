@@ -1,3 +1,4 @@
+import { hasChanged } from "../shared";
 import { isTracking, trackEffects, triggerEffects } from "./effect";
 
 class RefImpl {
@@ -9,11 +10,7 @@ class RefImpl {
   }
 
   get value() {
-    if (isTracking()) {
-      // 做依赖收集的动作
-      trackEffects(this.dep);
-    }
-
+    trackRefValue(this);
     return this._value;
   }
 
@@ -21,13 +18,20 @@ class RefImpl {
     // 一定先去修改了 value 的值，再触发依赖
 
     // 判断是否set相同的值，如果相同就不触发依赖
-    // Object.is 方法判断两个值是否为同一个值
-    if (Object.is(newValue, this._value)) return;
+    // hasChanged
+    if (hasChanged(newValue, this._value)) {
+      this._value = newValue;
 
-    this._value = newValue;
+      // 触发依赖
+      triggerEffects(this.dep);
+    }
+  }
+}
 
-    // 触发依赖
-    triggerEffects(this.dep);
+function trackRefValue(ref) {
+  if (isTracking()) {
+    // 做依赖收集的动作
+    trackEffects(ref.dep);
   }
 }
 
