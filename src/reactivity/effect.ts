@@ -2,7 +2,6 @@ import { extend } from "../shared";
 
 let activeEffect: any;
 let shouldTrack;
-
 class ReactiveEffect {
   private _fn: any;
   deps = [];
@@ -79,6 +78,10 @@ export function track(target, key) {
     depsMap.set(key, dep);
   }
 
+  trackEffects(dep);
+}
+
+export function trackEffects(dep) {
   // 将 fn,也就是正在触发的依赖 放入指定key的依赖的容器
   if (dep.has(activeEffect)) return; // 避免重复收集
   dep.add(activeEffect);
@@ -88,7 +91,9 @@ export function track(target, key) {
 }
 
 // 正在收集中的状态
-function isTracking() {
+//
+// 就是判断是否有 收集到的依赖
+export function isTracking() {
   /* // 如果没有effect，就不用执行下面的操作，就修复了 reactive 的 happy path 单测
   if (!activeEffect) return;
   if (!shouldTrack) return; */
@@ -100,6 +105,11 @@ export function trigger(target: any, key: any) {
   let depsMap = targetMap.get(target);
   let dep = depsMap.get(key);
 
+  triggerEffects(dep);
+}
+
+// 抽离 调用所有的依赖的逻辑
+export function triggerEffects(dep) {
   // 调用所有的依赖
   for (let effect of dep) {
     if (effect.scheduler) {
