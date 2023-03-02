@@ -12,6 +12,10 @@ function patch(vnode, container) {
   // 去处理组件
 
   // 判断 是不是 element 类型
+  // 是 element 那么就应该处理 element
+
+  // processElement();
+
   processComponent(vnode, container);
 }
 
