@@ -27,7 +27,7 @@ function processElement(vnode, container) {
 }
 
 function mountElement(vnode, container) {
-  const el = document.createElement(vnode.type);
+  const el = (vnode.el = document.createElement(vnode.type));
 
   // 给 el.textContent = 'hi mini-vue'
   //
@@ -72,10 +72,10 @@ function mountComponent(vnode, container) {
 
   setupComponent(instance);
 
-  setupRenderEffect(instance, container);
+  setupRenderEffect(instance, vnode, container);
 }
 
-function setupRenderEffect(instance: any, container) {
+function setupRenderEffect(instance: any, vnode, container) {
   // 取出代理对象
   const { proxy } = instance;
   const subTree = instance.render.call(proxy); // 也就是 return 出来的 h
@@ -83,4 +83,7 @@ function setupRenderEffect(instance: any, container) {
   // vnode -> patch
   // vnode -> element -> mountElement
   patch(subTree, container);
+
+  // 在所有的element都处理完成了
+  vnode.el = subTree.el;
 }
