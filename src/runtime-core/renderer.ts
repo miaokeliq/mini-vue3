@@ -1,6 +1,7 @@
 import { createComponentInstance, setupComponent } from "./component";
 import { isObject } from "../shared";
 import { ShapeFlags } from "../shared/ShapeFlags";
+import { Fragment, Text } from "./vnode";
 // render 函数 返回想要渲染的虚拟节点
 export function render(vnode, container) {
   // patch
@@ -16,12 +17,36 @@ function patch(vnode, container) {
   // 是 element 那么就应该处理 element
 
   // ShapeFlags 描述当前虚拟节点的类型
-  const { shapeFlag } = vnode;
-  if (shapeFlag & ShapeFlags.ELEMENT) {
-    processElement(vnode, container);
-  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-    processComponent(vnode, container);
+  const { type, shapeFlag } = vnode;
+  switch (type) {
+    case Fragment:
+      processFragment(vnode, container);
+      break;
+
+    case Text:
+      processText(vnode, container);
+      break;
+    default:
+      // Fragment -> 只渲染 children
+      if (shapeFlag & ShapeFlags.ELEMENT) {
+        processElement(vnode, container);
+      } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
+        processComponent(vnode, container);
+      }
+      break;
   }
+}
+
+function processText(vnode: any, container: any) {
+  const { children } = vnode;
+  const textNode = (vnode.el = document.createTextNode(children));
+
+  container.append(textNode);
+}
+
+function processFragment(vnode: any, container: any) {
+  //
+  mountChildren(vnode, container);
 }
 
 function processElement(vnode, container) {

@@ -1,4 +1,4 @@
-import { h } from "../../lib/guide-mini-vue.esm.js";
+import { h, createTextVNode } from "../../lib/guide-mini-vue.esm.js";
 import { Foo } from "./Foo.js";
 export const App = {
   name: "App",
@@ -11,7 +11,10 @@ export const App = {
       {},
       {
         // 转换成函数是因为 需要实现作用域插槽 ，这样好把值给 传过来
-        header: ({ age }) => h("p", {}, "header" + age),
+        header: ({ age }) => [
+          h("p", {}, "header" + age),
+          createTextVNode("你好呀"),
+        ],
         footer: () => h("p", {}, "footer"),
       }
     );
