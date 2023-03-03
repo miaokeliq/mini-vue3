@@ -4,6 +4,8 @@ import {
   shallowReadonlyHandlers,
 } from "./baseHandlers";
 
+import { isObject } from "../shared";
+
 export const enum ReactiveFlags {
   IS_REACTIVE = "__v_isReactive",
   IS_READONLY = "__v_isReadonly",
@@ -35,6 +37,11 @@ export function isProxy(value) {
   return isReactive(value) || isReadonly(value);
 }
 
-function createActiveObject(raw: any, baseHandlers) {
-  return new Proxy(raw, baseHandlers);
+function createActiveObject(target: any, baseHandlers) {
+  if (!isObject(target)) {
+    console.warn(`target ${target} 必须是一个对象`);
+    return target;
+  }
+
+  return new Proxy(target, baseHandlers);
 }

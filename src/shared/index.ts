@@ -9,3 +9,7 @@ export const hasChanged = (val, newValue) => {
   // Object.is 方法判断两个值是否为同一个值
   return !Object.is(val, newValue);
 };
+
+export const hasOwn = (val, key) => {
+  return Object.prototype.hasOwnProperty.call(val, key);
+};
