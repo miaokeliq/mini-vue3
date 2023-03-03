@@ -65,17 +65,17 @@ function processComponent(vnode: any, container: any) {
   mountComponent(vnode, container);
 }
 
-function mountComponent(vnode, container) {
+function mountComponent(initialVNode, container) {
   // 创建组件实例
   // 组件本身有自己的一些属性，比如props，插槽，这样可以抽离出成对象来表示组件实例
-  const instance = createComponentInstance(vnode);
+  const instance = createComponentInstance(initialVNode);
 
   setupComponent(instance);
 
-  setupRenderEffect(instance, vnode, container);
+  setupRenderEffect(instance, initialVNode, container);
 }
 
-function setupRenderEffect(instance: any, vnode, container) {
+function setupRenderEffect(instance: any, initialVNode, container) {
   // 取出代理对象
   const { proxy } = instance;
   const subTree = instance.render.call(proxy); // 也就是 return 出来的 h
@@ -85,5 +85,5 @@ function setupRenderEffect(instance: any, vnode, container) {
   patch(subTree, container);
 
   // 在所有的element都处理完成了
-  vnode.el = subTree.el;
+  initialVNode.el = subTree.el;
 }
