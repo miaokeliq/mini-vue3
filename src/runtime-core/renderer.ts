@@ -7,10 +7,10 @@ export function render(vnode, container) {
   // patch
 
   // 后续需要递归调用
-  patch(vnode, container);
+  patch(vnode, container, null);
 }
 
-function patch(vnode, container) {
+function patch(vnode, container, parentComponent) {
   // 去处理组件
 
   // 判断 是不是 element 类型
@@ -20,7 +20,7 @@ function patch(vnode, container) {
   const { type, shapeFlag } = vnode;
   switch (type) {
     case Fragment:
-      processFragment(vnode, container);
+      processFragment(vnode, container, parentComponent);
       break;
 
     case Text:
@@ -29,9 +29,9 @@ function patch(vnode, container) {
     default:
       // Fragment -> 只渲染 children
       if (shapeFlag & ShapeFlags.ELEMENT) {
-        processElement(vnode, container);
+        processElement(vnode, container, parentComponent);
       } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
-        processComponent(vnode, container);
+        processComponent(vnode, container, parentComponent);
       }
       break;
   }
@@ -44,17 +44,17 @@ function processText(vnode: any, container: any) {
   container.append(textNode);
 }
 
-function processFragment(vnode: any, container: any) {
+function processFragment(vnode: any, container: any, parentComponent: any) {
   //
-  mountChildren(vnode, container);
+  mountChildren(vnode, container, parentComponent);
 }
 
-function processElement(vnode, container) {
+function processElement(vnode, container, parentComponent) {
   // 分为 初始化 和 更新
-  mountElement(vnode, container);
+  mountElement(vnode, container, parentComponent);
 }
 
-function mountElement(vnode, container) {
+function mountElement(vnode, container, parentComponent) {
   const el = (vnode.el = document.createElement(vnode.type));
 
   // 给 el.textContent = 'hi mini-vue'
@@ -69,7 +69,7 @@ function mountElement(vnode, container) {
   if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
   } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
-    mountChildren(vnode, el);
+    mountChildren(vnode, el, parentComponent);
   }
   // props
   const { props } = vnode;
@@ -89,22 +89,22 @@ function mountElement(vnode, container) {
   container.append(el);
 }
 
-function mountChildren(vnode, container) {
+function mountChildren(vnode, container, parentComponent) {
   // vnode
   vnode.children.forEach((v) => {
-    patch(v, container);
+    patch(v, container, parentComponent);
   });
 }
 
-function processComponent(vnode: any, container: any) {
+function processComponent(vnode: any, container: any, parentComponent) {
   // 挂载 组件
-  mountComponent(vnode, container);
+  mountComponent(vnode, container, parentComponent);
 }
 
-function mountComponent(initialVNode, container) {
+function mountComponent(initialVNode, container, parentComponent) {
   // 创建组件实例
   // 组件本身有自己的一些属性，比如props，插槽，这样可以抽离出成对象来表示组件实例
-  const instance = createComponentInstance(initialVNode);
+  const instance = createComponentInstance(initialVNode, parentComponent);
 
   setupComponent(instance);
 
@@ -118,7 +118,7 @@ function setupRenderEffect(instance: any, initialVNode, container) {
 
   // vnode -> patch
   // vnode -> element -> mountElement
-  patch(subTree, container);
+  patch(subTree, container, instance);
 
   // 在所有的element都处理完成了
   initialVNode.el = subTree.el;

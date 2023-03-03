@@ -3,13 +3,16 @@ import { initProps } from "./componentProps";
 import { initSlots } from "./componentSlots";
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
-export function createComponentInstance(vnode) {
+export function createComponentInstance(vnode, parent) {
+  console.log("createComponentInstance", parent);
   const component = {
     vnode,
     type: vnode.type, // type 就是 App
     setupState: {},
     props: {},
     slots: {},
+    provides: parent ? parent.provides : {},
+    parent,
     emit: () => {},
   };
 
