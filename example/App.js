@@ -11,6 +11,12 @@ export const App = {
       {
         id: "root",
         class: ["red", "hard"],
+        onClick() {
+          console.log("click");
+        },
+        onMousedown() {
+          console.log("mousedown");
+        },
       },
       // 方法一
       // 1. setupState 里面获取对应的值
