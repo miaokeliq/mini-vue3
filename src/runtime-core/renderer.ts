@@ -1,5 +1,6 @@
 import { createComponentInstance, setupComponent } from "./component";
 import { isObject } from "../shared";
+import { ShapeFlags } from "../shared/ShapeFlags";
 // render 函数 返回想要渲染的虚拟节点
 export function render(vnode, container) {
   // patch
@@ -14,9 +15,11 @@ function patch(vnode, container) {
   // 判断 是不是 element 类型
   // 是 element 那么就应该处理 element
 
-  if (typeof vnode.type === "string") {
+  // ShapeFlags 描述当前虚拟节点的类型
+  const { shapeFlag } = vnode;
+  if (shapeFlag & ShapeFlags.ELEMENT) {
     processElement(vnode, container);
-  } else if (isObject(vnode.type)) {
+  } else if (shapeFlag & ShapeFlags.STATEFUL_COMPONENT) {
     processComponent(vnode, container);
   }
 }
@@ -36,11 +39,11 @@ function mountElement(vnode, container) {
   // document.body.append(el)
 
   // string array
-  const { children } = vnode;
+  const { children, shapeFlag } = vnode;
 
-  if (typeof children === "string") {
+  if (shapeFlag & ShapeFlags.TEXT_CHILDREN) {
     el.textContent = children;
-  } else if (Array.isArray(children)) {
+  } else if (shapeFlag & ShapeFlags.ARRAY_CHILDREN) {
     mountChildren(vnode, el);
   }
   // props

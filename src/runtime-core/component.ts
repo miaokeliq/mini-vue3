@@ -5,7 +5,6 @@ export function createComponentInstance(vnode) {
     vnode,
     type: vnode.type, // type 就是 App
     setupState: {},
-    el: null,
   };
 
   return component;
