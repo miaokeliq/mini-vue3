@@ -13,3 +13,20 @@ export const hasChanged = (val, newValue) => {
 export const hasOwn = (val, key) => {
   return Object.prototype.hasOwnProperty.call(val, key);
 };
+
+// 转换为驼峰命名格式
+export const camelize = (str: string) => {
+  return str.replace(/-(\w)/g, (_, c) => {
+    return c ? c.toUpperCase() : "";
+  });
+};
+
+// 将首字母变成大写
+export const capitalize = (str: string) => {
+  return str.charAt(0).toUpperCase() + str.slice(1);
+};
+
+// event 前面加上 "on"
+export const toHandlerKey = (str: string) => {
+  return str ? "on" + capitalize(str) : "";
+};
