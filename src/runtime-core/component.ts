@@ -2,6 +2,7 @@ export function createComponentInstance(vnode) {
   const component = {
     vnode,
     type: vnode.type, // type 就是 App
+    setupState: {},
   };
 
   return component;
@@ -20,6 +21,21 @@ export function setupComponent(instance) {
 function setupStatefulComponent(instance: any) {
   // 先获取组件，然后获取里面的setup
   const Component = instance.type;
+
+  // ctx
+  instance.proxy = new Proxy(
+    {},
+    {
+      //  key 是 App.js 里的this.msg
+      get(target, key) {
+        //setupState
+        const { setupState } = instance;
+        if (key in setupState) {
+          return setupState[key];
+        }
+      },
+    }
+  );
 
   const { setup } = Component;
 

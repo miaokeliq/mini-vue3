@@ -9,17 +9,22 @@ export const App = {
         id: "root",
         class: ["red", "hard"],
       },
-      // "hi," + this.msg
+      // 方法一
+      // 1. setupState 里面获取对应的值
+      // 2. thi.$el -> 获取 根节点，也就是 上面的 div
+      //
+      //
+      "hi," + this.msg
       // string
       // "hi, mini-vue"
       // Array
-      [h("p", { class: "red" }, "hi"), h("p", { class: "blue" }, "mini-vue")]
+      // [h("p", { class: "red" }, "hi"), h("p", { class: "blue" }, "mini-vue")]
     );
   },
 
   setup() {
     return {
-      msg: "mini-vue",
+      msg: "mini-vue-haha",
     };
   },
 };

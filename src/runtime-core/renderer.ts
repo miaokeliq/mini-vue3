@@ -76,7 +76,9 @@ function mountComponent(vnode, container) {
 }
 
 function setupRenderEffect(instance: any, container) {
-  const subTree = instance.render(); // 也就是 return 出来的 h
+  // 取出代理对象
+  const { proxy } = instance;
+  const subTree = instance.render.call(proxy); // 也就是 return 出来的 h
 
   // vnode -> patch
   // vnode -> element -> mountElement
