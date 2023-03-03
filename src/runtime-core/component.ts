@@ -1,5 +1,6 @@
 import { PublicInstanceProxyHandlers } from "./componentPublicInstance";
 import { initProps } from "./componentProps";
+import { initSlots } from "./componentSlots";
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
 export function createComponentInstance(vnode) {
@@ -8,6 +9,7 @@ export function createComponentInstance(vnode) {
     type: vnode.type, // type 就是 App
     setupState: {},
     props: {},
+    slots: {},
     emit: () => {},
   };
 
@@ -17,10 +19,10 @@ export function createComponentInstance(vnode) {
 }
 
 export function setupComponent(instance) {
-  // 初始化 propsj
+  // 初始化 props
   initProps(instance, instance.vnode.props);
-  // 初始化 slotsj
-  // initSlots()
+  // 初始化 slots
+  initSlots(instance, instance.vnode.children);
 
   // 调用 setup, 拿到对应的返回值 最终设置 render
   setupStatefulComponent(instance);
