@@ -5,7 +5,11 @@ import { createAppApi } from "./createApp";
 
 // 闭包
 export function createRenderer(options) {
-  const { createElement, patchProp, insert } = options;
+  const {
+    createElement: hostCreateElement,
+    patchProp: hostPatchProp,
+    insert: hostInsert,
+  } = options;
 
   // render 函数 返回想要渲染的虚拟节点
   function render(vnode, container) {
@@ -60,7 +64,7 @@ export function createRenderer(options) {
   }
 
   function mountElement(vnode, container, parentComponent) {
-    const el = (vnode.el = createElement(vnode.type));
+    const el = (vnode.el = hostCreateElement(vnode.type));
 
     // 给 el.textContent = 'hi mini-vue'
     //
@@ -81,11 +85,11 @@ export function createRenderer(options) {
     for (let key in props) {
       let val = props[key];
 
-      patchProp(el, key, val);
+      hostPatchProp(el, key, val);
     }
 
     // container.append(el);
-    insert(el, container);
+    hostInsert(el, container);
   }
 
   function mountChildren(vnode, container, parentComponent) {
