@@ -191,6 +191,61 @@ export function createRenderer(options) {
       }
     } else {
       //乱序的部分
+      //中间对比
+      //
+      // --- 删除的逻辑--- //
+      //
+      // 其中的一个面试问题： key 有什么用？
+      //                      有了key后在diff算法中新老节点对比时可以通过设置的key来建立key和节点的映射Map
+      //                      有了这个map后就可以快速地通过key来查找新节点里存不存在老节点，不用再循环遍历，降低时间负责度从 O(n) 为 O(1)
+      //
+      //
+      //
+      let s1 = i; // 标识老节点开始部分
+      let s2 = i;
+
+      // 总共需要 patch 的节点数量
+      const toBePatched = e2 - s2 + 1; // 新节点需要patch 的数量
+      let patched = 0;
+      const keyToNewIndexMap = new Map();
+
+      for (let i = s2; i <= e2; i++) {
+        const nextChild = c2[i];
+        keyToNewIndexMap.set(nextChild.key, i);
+      }
+
+      for (let i = s1; i <= e1; i++) {
+        const prevChild = c1[i]; // 拿到当前节点
+
+        // 如果新节点patch完后老节点还剩得有没patch 的，就可以把没patch的老节点都删除掉
+        if (patched >= toBePatched) {
+          hostRemove(prevChild.el);
+          continue;
+        }
+
+        // 只要不等于 null 和 undefined ，就说明之前的child有key，就可以用key做对比
+        let newIndex;
+        if (prevChild.key !== null) {
+          newIndex = keyToNewIndexMap.get(prevChild.key);
+        } else {
+          // 如果没有 key，就只有遍历
+          for (let j = s2; j < e2; j++) {
+            if (isSomeVNodeType(prevChild, c2[j])) {
+              // 判断两个节点是否相等
+              newIndex = j;
+              break;
+            }
+          }
+        }
+        if (newIndex === undefined) {
+          // 说明当前节点在新的节点里面不存在
+          hostRemove(prevChild.el);
+        } else {
+          patch(prevChild, c2[newIndex], container, parentComponent, null); // 如果节点存在，就对比孩子节点
+          patched++; // patch 完一个说明处理完一个新的节点，则用 patched 记录加1
+        }
+      }
+      // --- 删除的逻辑--- //
     }
   }
 
