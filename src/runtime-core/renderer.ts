@@ -5,6 +5,7 @@ import { Fragment, Text } from "./vnode";
 import { createAppApi } from "./createApp";
 import { effect } from "../reactivity/effect";
 import { EMPTY_OBJ } from "../shared";
+import { queueJobs } from "./scheduler";
 
 // 闭包
 export function createRenderer(options) {
@@ -393,41 +394,51 @@ export function createRenderer(options) {
     // 当调用 instance.render 时会触发依赖收集, 触发响应式对象的get ，当响应式对象值改变，会触发这里的依赖
     // 然后再次调用render函数，生成全新的 subTree
 
-    instance.update = effect(() => {
-      if (!instance.isMounted) {
-        console.log("init");
-        // 取出代理对象
-        const { proxy } = instance;
-        const subTree = (instance.subTree = instance.render.call(proxy)); // 也就是 return 出来的 h  // subTree 就是虚拟节点树 // instance.subTree 作用是把subTree保存下来
+    instance.update = effect(
+      () => {
+        if (!instance.isMounted) {
+          console.log("init");
+          // 取出代理对象
+          const { proxy } = instance;
+          const subTree = (instance.subTree = instance.render.call(proxy)); // 也就是 return 出来的 h  // subTree 就是虚拟节点树 // instance.subTree 作用是把subTree保存下来
 
-        // vnode -> patch
-        // vnode -> element -> mountElement
-        patch(null, subTree, container, instance, anchor);
+          // vnode -> patch
+          // vnode -> element -> mountElement
+          patch(null, subTree, container, instance, anchor);
 
-        // 在所有的element都处理完成了
-        initialVNode.el = subTree.el;
+          // 在所有的element都处理完成了
+          initialVNode.el = subTree.el;
 
-        instance.isMounted = true;
-      } else {
-        console.log("update");
-        // 更新组件的 props
-        // 需要一个更新完成之后的 vnode
-        const { next, vnode } = instance; // vnode 指向的是更新之前的虚拟节点 // next 是下次要更新的虚拟节点
-        if (next) {
-          next.el = vnode.el; // 更新 el
+          instance.isMounted = true;
+        } else {
+          console.log("update");
+          // 更新组件的 props
+          // 需要一个更新完成之后的 vnode
+          const { next, vnode } = instance; // vnode 指向的是更新之前的虚拟节点 // next 是下次要更新的虚拟节点
+          if (next) {
+            next.el = vnode.el; // 更新 el
 
-          // 更新组件的属性
-          updateComponentPreRender(instance, next);
+            // 更新组件的属性
+            updateComponentPreRender(instance, next);
+          }
+          const { proxy } = instance;
+          const subTree = instance.render.call(proxy); // 获取当前的subTree
+          const prevSubTree = instance.subTree; // 获取之前的subTree
+
+          instance.subTree = subTree;
+
+          patch(prevSubTree, subTree, container, instance, anchor);
         }
-        const { proxy } = instance;
-        const subTree = instance.render.call(proxy); // 获取当前的subTree
-        const prevSubTree = instance.subTree; // 获取之前的subTree
-
-        instance.subTree = subTree;
-
-        patch(prevSubTree, subTree, container, instance, anchor);
+      },
+      {
+        scheduler() {
+          console.log("update - scheduler");
+          // 防止每次同步任务时都要更新一次， 则使用事件循环机制将 update 放在微任务里
+          // 视图更新就从同步任务变成了异步任务
+          queueJobs(instance.update);
+        },
       }
-    });
+    );
   }
 
   return {
