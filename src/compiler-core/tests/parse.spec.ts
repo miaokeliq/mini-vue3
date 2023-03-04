@@ -1,5 +1,5 @@
 import { baseParse } from "../src/parse";
-
+import { NodeTypes } from "../src/ast";
 // TDD
 // 让单测赶快通过 称为 伪实现
 //
@@ -12,9 +12,9 @@ describe("Parse", () => {
 
       // root
       expect(ast.children[0]).toStrictEqual({
-        type: "interpolation",
+        type: NodeTypes.INTERPOLATION,
         content: {
-          type: "simple_expression",
+          type: NodeTypes.SIMPLE_EXPRESSION,
           content: "message",
         },
       });

@@ -1,3 +1,4 @@
+import { NodeTypes } from "./ast";
 export function baseParse(content: string) {
   const context = createParserContext(content); // 创建一个全局上下文对象
 
@@ -7,7 +8,10 @@ export function baseParse(content: string) {
 function parseChildren(context) {
   const nodes: any = [];
 
-  const node = parseInterpolation(context);
+  let node;
+  if (context.source.startsWith("{{")) {
+    node = parseInterpolation(context);
+  }
 
   nodes.push(node);
   return nodes;
@@ -17,21 +21,39 @@ function parseChildren(context) {
 function parseInterpolation(context) {
   // {{message}}
 
-  const closeIndex = context.source.indexOf("}}", 2); // 9
-  context.source = context.source.slice(2); // context.source == message}}
+  const openDelimiter = "{{";
+  const closeDelimiter = "}}";
 
-  const rawContentLength = closeIndex - 2; // 7
+  const closeIndex = context.source.indexOf(
+    closeDelimiter,
+    openDelimiter.length
+  ); // 9
 
-  const content = context.source.slice(0, rawContentLength); // message
+  advanceBy(context, openDelimiter.length);
+
+  const rawContentLength = closeIndex - openDelimiter.length; // 7
+
+  const rawContent = context.source.slice(0, rawContentLength); // message
+  // 去除空格 避免 {{ message }} 的情况
+  const content = rawContent.trim();
+
   // 解析完后就删除掉 ，继续往后面的字符串解析
-  context.source = context.source.slice(rawContentLength + 2);
+
+  advanceBy(context, rawContentLength + closeDelimiter.length);
+
+  // 把处理完的string 变成一个对象
   return {
-    type: "interpolation",
+    type: NodeTypes.INTERPOLATION,
     content: {
-      type: "simple_expression",
+      type: NodeTypes.SIMPLE_EXPRESSION,
       content: content,
     },
   };
+  // 把所有的string处理完后就会形成一个树， ast 抽象语法树
+}
+
+function advanceBy(context: any, length: number) {
+  context.source = context.source.slice(length);
 }
 
 function createRoot(children) {
