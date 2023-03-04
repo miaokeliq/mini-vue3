@@ -23,10 +23,25 @@ function insert(el, parent) {
   parent.append(el);
 }
 
+// 删除子节点
+function remove(child) {
+  const parent = child.parentNode;
+  if (parent) {
+    // 如果有 父节点 就调用 父节点的dom api 删除
+    parent.removeChild(child);
+  }
+}
+
+function setElementText(el, text) {
+  el.textContent = text;
+}
+
 const renderer: any = createRenderer({
   createElement,
   patchProp,
   insert,
+  remove,
+  setElementText,
 });
 
 export function createApp(...args) {
