@@ -3,6 +3,7 @@ import { initProps } from "./componentProps";
 import { initSlots } from "./componentSlots";
 import { shallowReadonly } from "../reactivity/reactive";
 import { emit } from "./componentEmit";
+import { proxyRefs } from "../reactivity";
 export function createComponentInstance(vnode, parent) {
   console.log("createComponentInstance", parent);
   const component = {
@@ -13,6 +14,8 @@ export function createComponentInstance(vnode, parent) {
     slots: {},
     provides: parent ? parent.provides : {},
     parent,
+    isMounted: false,
+    subTree: {},
     emit: () => {},
   };
 
@@ -57,7 +60,7 @@ function handleSetupResult(instance, setupResult: any) {
   //  TODO function
 
   if (typeof setupResult === "object") {
-    instance.setupState = setupResult;
+    instance.setupState = proxyRefs(setupResult); // 通过 proxyRefs 包裹可以直接使例如 this.name = name.value  就不用再 .value 了
   }
 
   // 需要保证组件的render有值
