@@ -7,7 +7,7 @@ import { NodeTypes } from "../src/ast";
 //
 describe("Parse", () => {
   describe("interpolation", () => {
-    test("simple interpolation", () => {
+    it("simple interpolation", () => {
       const ast = baseParse("{{message}}");
 
       // root
@@ -17,6 +17,18 @@ describe("Parse", () => {
           type: NodeTypes.SIMPLE_EXPRESSION,
           content: "message",
         },
+      });
+    });
+  });
+
+  describe("element ", () => {
+    it("simple element div", () => {
+      const ast = baseParse("<div></div>");
+
+      // root
+      expect(ast.children[0]).toStrictEqual({
+        type: NodeTypes.ELEMENT,
+        tag: "div",
       });
     });
   });
