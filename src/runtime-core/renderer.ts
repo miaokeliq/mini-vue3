@@ -3,6 +3,7 @@ import { ShapeFlags } from "../shared/ShapeFlags";
 import { Fragment, Text } from "./vnode";
 import { createAppApi } from "./createApp";
 import { effect } from "../reactivity/effect";
+import { EMPTY_OBJ } from "../shared";
 
 // 闭包
 export function createRenderer(options) {
@@ -76,7 +77,38 @@ export function createRenderer(options) {
     console.log("n2", n2);
 
     // 对比 props
+    // 三种场景：
+    // 1. 如果老的prop是 foo:foo 新的是 foo:new-foo , 也就是 foo 之前的值和现在的值不一样了，则修改
+    // 2. 如果新的是 undefined || null，则删除
+    // 3. 如果 foo 这个属性在新的里面没有了，则删除
+    const oldProps = n1.props || EMPTY_OBJ;
+    const newProps = n2.props || EMPTY_OBJ; // 如果没有就设置为 {}
+    const el = (n2.el = n1.el); // 下次更新时n2没有el, 这时就需要把 el 赋值给 n2 的, 这样下次更新时 n2就是 n1,这时就有 el 了
+    patchProps(el, oldProps, newProps);
     // 对比 children
+  }
+
+  function patchProps(el, oldProps, newProps) {
+    if (oldProps !== newProps) {
+      // 不一样才对比， �样的话就不用对比了
+      for (const key in newProps) {
+        const prevProp = oldProps[key];
+        const nextProp = newProps[key];
+
+        if (prevProp !== nextProp) {
+          hostPatchProp(el, key, prevProp, nextProp);
+        }
+      }
+
+      // 场景三
+      if (oldProps !== EMPTY_OBJ) {
+        for (const key in oldProps) {
+          if (!(key in newProps)) {
+            hostPatchProp(el, key, oldProps[key], null);
+          }
+        }
+      }
+    }
   }
 
   function mountElement(vnode, container, parentComponent) {
@@ -101,7 +133,7 @@ export function createRenderer(options) {
     for (let key in props) {
       let val = props[key];
 
-      hostPatchProp(el, key, val);
+      hostPatchProp(el, key, null, val); // 初始化的时候没有之前的值，可以给 null
     }
 
     // container.append(el);
