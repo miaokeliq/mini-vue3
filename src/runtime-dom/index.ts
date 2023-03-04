@@ -19,8 +19,10 @@ function patchProp(el, key, preVal, nextVal) {
   }
 }
 
-function insert(el, parent) {
-  parent.append(el);
+// anchor, 锚点，指定添加到元素的哪个位置
+function insert(child, parent, anchor) {
+  // parent.append(el);
+  parent.insertBefore(child, anchor || null); // 指定child添加到anchor的前面，如果 anchor为空，则默认添加到后面
 }
 
 // 删除子节点

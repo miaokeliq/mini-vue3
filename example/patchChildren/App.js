@@ -16,9 +16,9 @@ export default {
       // 老的是 text 新的是 text
       // h(TextToText),
       // 老的是 text 新的是 array
-      h(TextToArray), // 先把之前的 text 给清空掉，然后再把新的 div 统一的 mount，因为之前没有mount过
+      // h(TextToArray), // 先把之前的 text 给清空掉，然后再把新的 div 统一的 mount，因为之前没有mount过
       // 老的是 array 新的是 array
-      // h(ArrayToArray),
+      h(ArrayToArray),
     ]);
   },
 };
