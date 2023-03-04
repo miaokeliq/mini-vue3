@@ -2,8 +2,9 @@ import { hasOwn } from "../shared/index";
 const publicPropertiesMap = {
   $el: (i) => i.vnode.el,
   $slots: (i) => i.slots,
+  $props: (i) => i.props, //  i 是组件实例对象
 };
-
+// App.js 中的 render 里面的 this 指向的是代理对象
 export const PublicInstanceProxyHandlers = {
   //  key 是 App.js 里的this.msg
   get({ _: instance }, key) {

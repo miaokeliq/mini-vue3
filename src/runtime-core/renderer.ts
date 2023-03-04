@@ -1,3 +1,4 @@
+import { shouldUpdateComponent } from "./componentUpdateUtils";
 import { createComponentInstance, setupComponent } from "./component";
 import { ShapeFlags } from "../shared/ShapeFlags";
 import { Fragment, Text } from "./vnode";
@@ -353,14 +354,33 @@ export function createRenderer(options) {
   }
 
   function processComponent(n1, n2, container: any, parentComponent, anchor) {
-    // 挂载 组件
-    mountComponent(n2, container, parentComponent, anchor);
+    if (!n1) {
+      // 挂载 组件
+      mountComponent(n2, container, parentComponent, anchor);
+    } else {
+      updateComponent(n1, n2);
+    }
+  }
+
+  function updateComponent(n1, n2) {
+    const instance = (n2.component = n1.component);
+    if (shouldUpdateComponent(n1, n2)) {
+      // 通过检测组件的 props  是否改变来判断是否需要更新
+      instance.next = n2; // next 表示下次要更新的虚拟节点
+      instance.update();
+    } else {
+      n2.el = n1.el;
+      instance.vnode = n2;
+    }
   }
 
   function mountComponent(initialVNode, container, parentComponent, anchor) {
     // 创建组件实例
     // 组件本身有自己的一些属性，比如props，插槽，这样可以抽离出成对象来表示组件实例
-    const instance = createComponentInstance(initialVNode, parentComponent);
+    const instance = (initialVNode.component = createComponentInstance(
+      initialVNode,
+      parentComponent
+    ));
 
     setupComponent(instance);
 
@@ -373,12 +393,13 @@ export function createRenderer(options) {
     // 当调用 instance.render 时会触发依赖收集, 触发响应式对象的get ，当响应式对象值改变，会触发这里的依赖
     // 然后再次调用render函数，生成全新的 subTree
 
-    effect(() => {
+    instance.update = effect(() => {
       if (!instance.isMounted) {
         console.log("init");
         // 取出代理对象
         const { proxy } = instance;
         const subTree = (instance.subTree = instance.render.call(proxy)); // 也就是 return 出来的 h  // subTree 就是虚拟节点树 // instance.subTree 作用是把subTree保存下来
+
         // vnode -> patch
         // vnode -> element -> mountElement
         patch(null, subTree, container, instance, anchor);
@@ -389,6 +410,15 @@ export function createRenderer(options) {
         instance.isMounted = true;
       } else {
         console.log("update");
+        // 更新组件的 props
+        // 需要一个更新完成之后的 vnode
+        const { next, vnode } = instance; // vnode 指向的是更新之前的虚拟节点 // next 是下次要更新的虚拟节点
+        if (next) {
+          next.el = vnode.el; // 更新 el
+
+          // 更新组件的属性
+          updateComponentPreRender(instance, next);
+        }
         const { proxy } = instance;
         const subTree = instance.render.call(proxy); // 获取当前的subTree
         const prevSubTree = instance.subTree; // 获取之前的subTree
@@ -403,6 +433,12 @@ export function createRenderer(options) {
   return {
     createApp: createAppApi(render),
   };
+}
+
+function updateComponentPreRender(instance, nextVNode) {
+  instance.vnode = nextVNode;
+  instance.next = null;
+  instance.props = nextVNode.props;
 }
 
 function getSequence(arr: number[]): number[] {
