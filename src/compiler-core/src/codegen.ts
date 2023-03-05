@@ -1,5 +1,9 @@
 import { NodeTypes } from "./ast";
-import { helperMapName, TO_DISPLAY_STRING } from "./runtimeHelpers";
+import {
+  CREATE_ELEMENT_VNODE,
+  helperMapName,
+  TO_DISPLAY_STRING,
+} from "./runtimeHelpers";
 
 // 只负责根据 ast 生成代码
 export function generate(ast) {
@@ -16,7 +20,7 @@ export function generate(ast) {
 
   push(`function ${functionName}(${signature}){`);
 
-  push(`return`);
+  push(`return `);
 
   genNode(ast.codegenNode, context);
 
@@ -62,11 +66,20 @@ function genNode(node: any, context) {
       break;
     case NodeTypes.SIMPLE_EXPRESSION:
       genExpression(node, context);
+      break;
+    case NodeTypes.ELEMENT:
+      genElement(node, context);
     default:
       break;
   }
 
   // text
+}
+
+function genElement(node, context) {
+  const { push, helper } = context;
+  const { tag } = node;
+  push(`${helper(CREATE_ELEMENT_VNODE)}("${tag}")`);
 }
 
 function genExpression(node, context) {
@@ -76,13 +89,13 @@ function genExpression(node, context) {
 
 function genText(node, context) {
   const { push } = context;
-  push(` '${node.content}'`);
+  push(`'${node.content}'`);
 }
 
 function genInterpolation(node, context) {
   const { push, helper } = context;
 
-  push(` ${helper(TO_DISPLAY_STRING)}(`);
+  push(`${helper(TO_DISPLAY_STRING)}(`);
   genNode(node.content, context);
   push(")");
 }
