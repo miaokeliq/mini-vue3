@@ -9,7 +9,7 @@ export function nextTick(fn) {
 }
 // 每次加入一个job，都会创建一个 promise ，这是完全没有必要的，则通过 isFlushPending 来控制
 export function queueJobs(job) {
-  if (!queue.includes) {
+  if (!queue.includes(job)) {
     queue.push(job);
   }
 
@@ -27,6 +27,7 @@ function queueFlush() {
 function flushJobs() {
   isFlushPending = false;
   let job;
+  console.log(queue);
   while ((job = queue.shift())) {
     job && job();
   }

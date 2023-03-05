@@ -400,7 +400,10 @@ export function createRenderer(options) {
           console.log("init");
           // 取出代理对象
           const { proxy } = instance;
-          const subTree = (instance.subTree = instance.render.call(proxy)); // 也就是 return 出来的 h  // subTree 就是虚拟节点树 // instance.subTree 作用是把subTree保存下来
+          const subTree = (instance.subTree = instance.render.call(
+            proxy,
+            proxy
+          )); // 也就是 return 出来的 h  // subTree 就是虚拟节点树 // instance.subTree 作用是把subTree保存下来
 
           // vnode -> patch
           // vnode -> element -> mountElement
@@ -422,7 +425,7 @@ export function createRenderer(options) {
             updateComponentPreRender(instance, next);
           }
           const { proxy } = instance;
-          const subTree = instance.render.call(proxy); // 获取当前的subTree
+          const subTree = instance.render.call(proxy, proxy); // 获取当前的subTree
           const prevSubTree = instance.subTree; // 获取之前的subTree
 
           instance.subTree = subTree;

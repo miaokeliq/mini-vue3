@@ -71,6 +71,13 @@ function handleSetupResult(instance, setupResult: any) {
 function finishComponentSetup(instance) {
   const Component = instance.type;
 
+  if (compiler && !Component.render) {
+    // 如果用户先写了 render 函数的话则优先级最高
+    if (Component.template) {
+      Component.render = compiler(Component.template);
+    }
+  }
+
   instance.render = Component.render;
 }
 
@@ -82,4 +89,10 @@ export function getCurrentInstance() {
 
 export function setCurrentInstance(instance) {
   currentInstance = instance;
+}
+
+let compiler;
+
+export function registerRuntimeCompiler(_compiler) {
+  compiler = _compiler;
 }
