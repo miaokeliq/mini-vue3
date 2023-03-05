@@ -1,5 +1,12 @@
 import { NodeTypes } from "./ast";
 
+/**
+ *  理解有限状态机的定义
+ *  以及有限状态机的图怎么表示,要会画图
+ *  还有就是规范
+ *
+ *
+ * */
 const enum TagType {
   Start,
   End,
