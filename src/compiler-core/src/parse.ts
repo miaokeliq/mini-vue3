@@ -24,9 +24,31 @@ function parseChildren(context) {
       node = parseElement(context);
     }
   }
+  //
+  // 如果 node 没有值，就默认当成 text 来解析
+  if (!node) {
+    node = parseText(context);
+  }
 
   nodes.push(node);
   return nodes;
+}
+
+function parseText(context: any) {
+  // 1. 获取当前 content
+  const content = parseTextData(context, context.source.length);
+  return {
+    type: NodeTypes.TEXT,
+    content,
+  };
+}
+
+function parseTextData(context, length) {
+  const content = context.source.slice(0, length);
+
+  // 2. 推进
+  advanceBy(context, length);
+  return content;
 }
 
 function parseElement(context: any) {
@@ -37,7 +59,6 @@ function parseElement(context: any) {
   // 1. 解析 tag
   const element = parseTag(context, TagType.Start);
   parseTag(context, TagType.End);
-  console.log("----------", context.source);
 
   return element;
 }
@@ -73,13 +94,13 @@ function parseInterpolation(context) {
 
   const rawContentLength = closeIndex - openDelimiter.length; // 7
 
-  const rawContent = context.source.slice(0, rawContentLength); // message
+  const rawContent = parseTextData(context, rawContentLength); // message
   // 去除空格 避免 {{ message }} 的情况
   const content = rawContent.trim();
 
   // 解析完后就删除掉 ，继续往后面的字符串解析
 
-  advanceBy(context, rawContentLength + closeDelimiter.length);
+  advanceBy(context, closeDelimiter.length);
 
   // 把处理完的string 变成一个对象
   return {
