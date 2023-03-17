@@ -1,7 +1,7 @@
 import { extend } from "@guide-mini-vue/shared";
 
 let activeEffect: any;
-let shouldTrack;
+let shouldTrack: any;
 export class ReactiveEffect {
   private _fn: any;
   deps = [];
@@ -25,7 +25,6 @@ export class ReactiveEffect {
     activeEffect = this;
 
     const result = this._fn();
-
     // reset
     shouldTrack = false;
     return result;
@@ -43,7 +42,7 @@ export class ReactiveEffect {
   }
 }
 
-function cleanupEffect(effect) {
+function cleanupEffect(effect: any) {
   effect.deps.forEach((dep: any) => {
     dep.delete(effect);
   });

@@ -3,7 +3,7 @@ import { isReadonly, shallowReadonly } from "../src/reactive";
 import { describe, it, expect, vi } from "vitest";
 describe("shallowReadonly", () => {
   it("should not make non-reactive properties reactive", () => {
-    const props = shallowReadonly({ n: { foo: 1 } });
+    const props = shallowReadonly({ raw: { n: { foo: 1 } } });
     expect(isReadonly(props)).toBe(true);
     expect(isReadonly(props.n)).toBe(false);
   });
@@ -13,7 +13,9 @@ describe("shallowReadonly", () => {
     // mock 通过这个构造一个假的警告方法
     console.warn = vi.fn();
     const user = shallowReadonly({
-      age: 10,
+      raw: {
+        age: 10,
+      },
     });
 
     user.age = 11;

@@ -46,7 +46,7 @@ function setupStatefulComponent(instance: any) {
   if (setup) {
     //  可能返回function Object
     setCurrentInstance(instance);
-    const setupResult = setup(shallowReadonly(instance.props), {
+    const setupResult = setup(shallowReadonly({ raw: instance.props }), {
       emit: instance.emit,
     });
 

@@ -8,7 +8,7 @@ describe("effect", () => {
     const user = reactive({
       age: 10,
     });
-    let nextAge;
+    let nextAge: any;
     effect(() => {
       nextAge = user.age + 1;
     });
@@ -76,7 +76,7 @@ describe("effect", () => {
     });
     obj.prop = 2;
     expect(dummy).toBe(2);
-    stop(runner);
+    stop({ runner });
     obj.prop = 3;
     expect(dummy).toBe(2);
 
@@ -98,7 +98,7 @@ describe("effect", () => {
       { onStop }
     );
 
-    stop(runner);
+    stop({ runner });
     expect(onStop).toHaveBeenCalledTimes(1);
   });
 });
