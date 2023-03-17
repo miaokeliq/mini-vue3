@@ -34,7 +34,7 @@ class RefImpl {
 
     // 判断是否set相同的值，如果相同就不触发依赖
     // hasChanged
-    // 对比的时候 object , 如果 _value 是对象，则就对比被 reactive 之前的 值 -> _rawValue
+    // 对比的时候 object , 如果 newValue 是对象，则就对比被 reactive 之前的 值 -> _rawValue
     if (hasChanged(newValue, this._rawValue)) {
       this._rawValue = newValue;
 

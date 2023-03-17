@@ -15,13 +15,18 @@ export class ReactiveEffect {
   }
   run() {
     // 证明当前的 effect 是正在执行的状态
-    // 1. 会收集依赖
-    //    shouldTrack 来做区分
+    // 1. 调用fn的时候就会收集依赖
+    //    shouldTrack 来做区分,是否收集依赖
+    //    通过this.active状态来区分是否是 stop状态
+    //    this.active === false  是stop状态，这时全局变量是shouldTrack=false，也就不会后续的收集依赖
     if (!this.active) {
       return this._fn();
     }
 
+    // 如果不是 stop的时候 就把开关打开
     shouldTrack = true;
+
+    // 当调用run的时候证明是当前正在执行的状态，那么activeEffect等于当前的effect
     activeEffect = this;
 
     const result = this._fn();
@@ -32,6 +37,7 @@ export class ReactiveEffect {
 
   stop() {
     // active 参数能够避免性能问题，如果active = false，就不用再删除了，这样以后就不会多次删除
+    // 这样外部用户调用多次 stop 之后，也只是清空一次
     if (this.active) {
       cleanupEffect(this);
       if (this.onStop) {
@@ -125,11 +131,11 @@ export function effect(fn: any, options: any = {}) {
 
   // options
   // extend
+  // 后续可能有很多 options，这样就通过 object.assign 来把值挂过去
   extend(_effect, options);
   _effect.run();
 
-  const runner: any = _effect.run.bind(_effect);
-  runner.effect = _effect;
+  const runner: any = _effect.run.bind(_effect); //以当前的effect实例作为this的指向
   return runner;
 }
 

@@ -25,7 +25,7 @@ export function shallowReadonly(raw) {
 
 // 初步实现
 export function isReactive(value) {
-  return !!value[ReactiveFlags.IS_REACTIVE];
+  return !!value[ReactiveFlags.IS_REACTIVE]; // 有可能是undefined，此时使用!!转化为boolean值
 }
 
 export function isReadonly(value) {
