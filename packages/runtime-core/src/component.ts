@@ -28,7 +28,7 @@ export function setupComponent(instance) {
   // 初始化 props
   initProps(instance, instance.vnode.props);
   // 初始化 slots
-  initSlots(instance, instance.vnode.children);
+  initSlots(instance, instance.vnode.children); //把虚拟节点的slots赋值给children
 
   // 调用 setup, 拿到对应的返回值 最终设置 render
   setupStatefulComponent(instance);

@@ -22,7 +22,7 @@ export const hasOwn = (val, key) => {
 
 // 转换为驼峰命名格式
 export const camelize = (str: string) => {
-  return str.replace(/-(\w)/g, (_, c) => {
+  return str.replace(/-(\w)/g, (_, c: string) => {
     return c ? c.toUpperCase() : "";
   });
 };

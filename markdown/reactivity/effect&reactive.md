@@ -46,3 +46,9 @@ it("happy path", () => {
   expect(observed.foo).toBe(1);
 });
 ```
+
+## effect
+
+根据面向对象思想，将`effect`的概念抽出，将`effect`封装成一个类来进行表示，创建`ReactiveEffect`类
+时就会调用`fn`,方法，于是创建一个`run()`方法，这个方法可以执行`fn`，所以就需要通过
+构造函数把`fn`传进来，并且赋值给`_fn`属性

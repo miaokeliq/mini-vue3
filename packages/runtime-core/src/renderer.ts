@@ -383,7 +383,7 @@ export function createRenderer(options) {
       parentComponent
     ));
 
-    setupComponent(instance);
+    setupComponent(instance); // 处理 props，插槽，以及处理 setup返回出来的值
 
     setupRenderEffect(instance, initialVNode, container, anchor);
   }
