@@ -39,7 +39,7 @@ function genFunctionPreamble(ast, context) {
   if (ast.helpers.length > 0) {
     push(`const { ${ast.helpers.map(aliasHelper).join(", ")}} = ${VueBining}`);
   }
-  push("\n");
+  push("\n"); // 换行
   push("return ");
 }
 

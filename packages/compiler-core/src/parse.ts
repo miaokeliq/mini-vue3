@@ -22,7 +22,7 @@ function parseChildren(context, ancestors) {
   const nodes: any = [];
 
   while (!isEnd(context, ancestors)) {
-    let node;
+    let node: any;
     const s = context.source;
     if (s.startsWith("{{")) {
       node = parseInterpolation(context);
