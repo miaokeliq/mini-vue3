@@ -2,7 +2,7 @@
 
 剔除了Vue3源码中的大多数边际case，实现vue3的核心逻辑。
 
-
+附带项目学习笔记，配合笔记实用更佳，如有疑问可以在相关issues下进行提问。
 
 # 实现模块
 ## runtime-core
@@ -23,7 +23,7 @@
 
 ## reactivity
 目标是用自己的 reactivity 支持现有的 demo 运行
-- [x] reactive 的实现
+- [x] [reactive 的实现](https://github.com/miaokeliq/mini-vue3/issues/1)
 - [x] ref 的实现
 - [x] readonly 的实现
 - [x] computed 的实现
