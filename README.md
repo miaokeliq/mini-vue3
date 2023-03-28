@@ -1,5 +1,9 @@
 # mini-vue3
 
+剔除了Vue3源码中的大多数边际case，实现vue3的核心逻辑。
+
+
+
 # 实现模块
 ## runtime-core
 - [x] 支持组件类型
